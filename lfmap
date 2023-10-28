@@ -1,0 +1,312 @@
+# === 执行命令 ===
+#map : read # (modal) 输入需要被执行的命令
+#map $ shell # (modal) 输入需要被执行的shell命令
+#map % shell-pipe # (modal) 输入需要被执行的shell命令，输出结果输出到底部
+#map ! shell-wait # (modal) 输入需要被执行的shell命令，最后需要任意键确认退出
+#map & shell-async # (modal) 输出需要被执行的shell命令，该命令异步执行，没有I/O
+#
+cmd openwith %"$@" "$fx"
+map o push :openwith<space>
+map A push a<c-e> # after extension
+map a rename # end
+map I push a<c-a> # TODO
+#map i $PAGER "$f"
+
+map vim push $vim
+map md push $mkdir<space>
+# map mc push ${{                              # 映射多行命令
+#     mkdir<space>
+# }}
+
+
+
+
+
+
+
+
+# === map cmap ===
+# 由于lf在终端工作，部分键盘映射会失效
+# 查看键是否可以使用和名称：可以在正常模式下敲击，并查看报错信息
+#
+# map gh                                  # 删除gh的映射
+# cmap <c-g>                              # 删除<c-g>的映射
+# map zt set info time                    # 等同 map zt :set info time
+# map st :set sortby time; set info time  # 映射多条命令
+# map st :{{                              # 映射多行命令
+#     set sortby time
+#     set info time
+# }}
+# map <enter> down                        # 映射特殊键，<>包裹并使用小写字母
+# map <lt> down                           # <>可以指定其特殊名称
+# map <f-1> down                          # 功能键使用f为前缀
+# map <c-a> down                          # ctrl组合键使用c为前缀
+# map <a-a> down                          # 在新一代终端，alt组合键使用a为前缀
+#
+# map <m-1> down                          # primary。鼠标按键以m为前缀
+# map <m-2> down                          # secondary
+# map <m-3> down                          # middle
+# map <m-4> down
+# map <m-5> down
+# map <m-6> down
+# map <m-7> down
+# map <m-8> down
+#
+# map <m-up>    down                      # 鼠标滚轮也以m为前缀
+# map <m-down>  down
+# map <m-left>  down
+# map <m-right> down
+#
+# === push ===
+# map <c-j> push 10j         # 应用于具有命令计数的命令。避免使用 map j push 2j 造成死锁
+# map r push :rename<space>  # 应用于等待输入参数
+#
+# use enter for shell commands
+map <enter> shell
+
+# show the result of execution of previous commands
+map ` !true
+
+# execute current file (must be executable)
+map x $$f
+map X !$f
+
+# dedicated keys for file opener actions
+map o &mimeopen $f
+map O $mimeopen --ask $f
+
+
+
+
+# ======================
+# === 默认的键盘映射 ===
+# ======================
+#
+# === 移动 ===
+#map k up # 光标移动到上一个文件 
+#map <up> up
+#map <c-u> half-up # 光标移动到屏幕一半上面的文件
+#map <c-b> page-up # 光标移动到一张屏幕上面的文件
+#map <pgup> page-up
+#map <c-y> scroll-up # 光标的位置不变，屏幕向上移动
+#
+#map j down
+#map <down> down
+#map <c-d> half-down
+#map <c-f> page-down
+#map <pgdn> page-down
+#map <c-e> scroll-down
+#
+#map h updir # 光标移动到父目录
+#map <left> updir
+#map l open # 光标移动到子目录，或使用系统默认程序打开该文件。open命令可以被自定义覆盖
+#map <right> open
+#map ] jump-next # 光标移动到上一次目录
+#map [ jump-prev # 光标移动到下一次目录
+#
+#map gg top # 光标移动到当前目录第一个文件
+#map <home> top
+#map G bottom # 光标移动到当前目录的最后一个文件。若在按G前先按数字，就表示光标移动到第几行
+#map <end> bottom
+#
+map H # 默认使用high：光标移动到相对屏幕的高位置
+map M # 默认使用middle
+map L # 默认使用low
+#
+# cd 切换目录到参数位置
+#map gh cd ~
+map go cd /opt/go/src
+map gc cd ~/.config
+map gC cd /etc
+map gd cd ~/Downloads
+map gD cd ~/Documents
+map gt cd /tmp
+map gT cd ~/.local/share/Trash/files
+map gi $lazygit
+map gp cd ~/Pictures
+map ga $vim ~/.todo.md
+#
+#
+# === 显示信息开关 ===
+#map zh set hidden!
+#map zr set reverse!
+#map zn set info
+#map zs set info size
+#map sn :set sortby natural; set info
+map sh :set sortby size; set info size # 默认map ss
+#map st :set sortby time; set info time
+#map sa :set sortby atime; set info atime
+map sm :set sortby ctime; set info ctime # 默认map sc
+#map se :set sortby ext; set info
+map zt # set info time
+map za # set info size:time
+#
+#map sh push $ssh<space> # TODO
+#
+#
+# === 选择 ===
+#map <space> :toggle; down # toggle 选择或不选择当前文件或给定的参数
+map v # 默认使用invert：对当前目录的所有文件进行 选择或不选择
+map vv invert
+map vb invert-below # 选择或不选择当前文件和下面的文件。可以通过使用2次来实现连续选择文件。该命令是实验性的
+# select 选择参数这个文件
+#map u unselect # 取消所有文件的选择
+# glob-select 选择匹配参数的文件
+# glob-unselect
+#
+#
+# === 文件移动 ===
+map y # 默认copy：复制选择的文件或当前文件
+map yy copy
+map yp %echo -n "$f" | xsel -b
+map d # 默认cut：剪切选择的文件或当前文件
+map dd cut
+map dD %mv -ib "$fx" ~/.local/share/Trash/files/ && echo "trashed $fx        from_dir $(pwd)" >> ~/.config/ranger/trash_history
+#map dD %rm -r "$fx"
+map p # 默认paste：将复制或剪切的文件粘贴到当前目录
+map pp paste
+map ps %mv -i ~/Pictures/screenshot/$(ls -c ~/Pictures/screenshot/ | head -n 1) ./
+map pS %mv -i $fx ~/Pictures/screenshot/
+#map c clear # 清理复制或剪切缓冲区中的文件路径
+#
+#
+#
+#
+#
+# === 文件查找 ===
+map f # 默认find：(modal) 读取一个键，向下寻找并跳转
+map F # 默认find-back：(modal)
+map ; # 默认find-next：继续寻找并跳转到find的下一个匹配项
+map , # 默认find-prev
+#
+#map / search # 当前目录向下查找并跳转到文件
+#map ? search-back
+#map n search-next # 继续之前的方向查找并跳转到文件
+#map N search-prev
+#
+# filter (modal) 当前客户端的当前目录设置筛选，当退出客户端后清理
+# setfilter 筛选参数
+#
+#
+# === 书签 ===
+map m
+map mm mark-save # (modal) 默认m，当前目录加书签，书签名是参数
+#map ' mark-load # (modal) 加载书签切换目录，书签名是参数
+#map " mark-remove # (modal) 删除书签，书签名是参数
+#
+# tag 使用单宽字符参数标记文件，无参数默认使用*
+#map t tag-toggle # 使用参数标记或不标记文件，无参数默认使用*
+#
+#
+# === 控制 ===
+#map q quit # 退出lf
+#
+# calcdirsize # 计算光标所在目录的大小。这个时候'info'应该包含'size'字段，并且'dircounts'已经禁用 TODO
+# clearmaps 删除所有map绑定。将：保留映射read。保留cmap绑定
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#cmap <esc> cmd-escape # 退出命令行模式回到正常模式
+#
+#cmap <tab> cmd-complete # 显示可以自动完成的列表，并自动完成单词
+# cmd-menu-complete 显示可以自动完成的列表，轮询自动完成下一个单词
+# cmd-menu-complete-back 可以使用<backtab>作为映射键
+# cmd-menu-accept 接受当前的自动完成，并关闭可以自动完成的列表
+#
+#cmap <c-j> cmd-enter 执行命令
+#cmap <enter> cmd-enter
+#
+#cmap <c-c> cmd-interrupt # 终端当前shell-pipe命令，并返回正常模式
+#
+#cmap <c-n> cmd-history-next # 显示下一个历史命令
+#cmap <down> cmd-history-next
+#cmap <c-p> cmd-history-prev
+#cmap <up> cmd-history-prev
+#
+#cmap <c-b> cmd-left # 向左移动一个光标
+#cmap <left> cmd-left
+#cmap <c-f> cmd-right
+#cmap <right> cmd-right
+#cmap <a-b> cmd-word-back # 向左移动一个单词的光标
+#cmap <a-f> cmd-word
+#
+#cmap <c-a> cmd-home # 光标移动到行首
+#cmap <home> cmd-home
+#cmap <c-e> cmd-end
+#cmap <end> cmd-end
+#
+#cmap <c-d> cmd-delete # 删除光标右边一个字符
+#cmap <delete> cmd-delete
+#cmap <backspace> cmd-delete-back # 删除光标右边一个字符，或回到正常模式，或':'模式
+#cmap <backspace2> cmd-delete-back
+#
+#cmap <c-u> cmd-delete-home # 删除光标左边所有字符
+#cmap <c-k> cmd-delete-end
+#cmap <c-w> cmd-delete-unix-word # 删除光标左边的一个单词
+#cmap <a-d> cmd-delete-word # 删除光标右边的一个单词
+#cmap <c-y> cmd-yank # 粘贴上次删除的内容
+#
+#cmap <c-t> cmd-transpose # 交换光标左边2个字符的位置
+#cmap <a-t> cmd-transpose-word
+#
+cmap <a-c> # 默认cmd-capitalize-word # 当前单词首字母大写，并跳转到下一个单词
+cmap <a-u> # 默认cmd-uppercase-word
+cmap <a-l> # 默认cmd-lowercase-word
+#
+# maps 列出普通模式下的所有键盘映射
+# cmaps 列出命令行编辑模式下……
+# cmds 列出所有'cmd'定义的自定义命令
+# jumps 列出最近访问的目录
+# jump-prev 若普通模式使用 '3[' ，则跳转到以前方向第3个目录，3也是最近访问的目录的标号
+# jump-next
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# === 文件操作 ===
+# delete (modal) 删除选择的文件或当前文件
+#map r push :rename<space> # (modal) 重命名当前文件 # cmd rename %[ -e $1 ] && printf "file exists" || mv $f $1
+# source 读取参数这个配置文件
+# push 模拟参数中给定的按键
+#
+#
+# === 刷新 ===
+# sync 将复制或剪切的文件与服务器同步。需要时会自动调用
+# draw 绘制屏幕。需要时自动调用
+#map <c-l> redraw # 同步终端并重新绘制屏幕
+# load 加载修改后的文件和目录。需要时会自动调用
+#map <c-r> reload # 刷新缓存并重新加载所有文件和目录
+#
+#
+# === 底部输出 ===
+# echo 在底部输出参数
+# echomsg 在底部输出参数、参数写入日志
+# echoerr 在底部输出错误、错误写入日志
+#
+#
+#
+#

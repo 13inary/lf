@@ -1,0 +1,157 @@
+# ======================
+# ====== 环境变量 ======
+# ======================
+# 使用方式：shell中使用'$XX'，cmd中使用'%XX%'，powershell中使用'$env:XX'
+# 清空手段：IFS="$(printf '\n\t')"; 或者： set ifs "\n"
+#
+# f 当前光标文件的完整路径
+# fs 所有选择的文件以'filesep'选项的值分隔为完整路径
+# fx 所'fs'有值就用'fx'，否则使用'f'
+# id 正在运行客户端的ID
+# PWD 当前工作目录
+# OLDPWD 一开始进来的工作目录
+# LF_LEVEL 当在lf内部生成的shell运行lf时，该变量的值设置为当前嵌套级别。您可以将此变量的值添加到shell提示中，以明确您的shell在lf中运行。
+# OPENER windows中设置为start，macos中设置为open，其他系统中设置为xdg-open
+# EDITOR 如果在环境中设置了VISUAL，请使用其值。否则，请使用环境变量EDITOR的值。如果两个变量都未设置，则在Unix中将其设置为“vi”，在Windows中将其设为“notepad”。
+# PAGER Unix上设置为“less”，在Windows中设置为“more”。
+# SHELL Unix上设置为“sh”，在Windows中设置为“cmd”。
+# lf 当前运行的lf二进制文件的绝对路径。否则被设置为字符串“lf”。
+# lf_{option} {option}的值
+# lf_user_{option} user_{option}的值
+# lf_width 终端的宽度
+# lf_height
+# lf_count 当前命令关联的计数的值
+#
+#
+# interpreter for shell commands
+set shell sh
+
+# set '-eu' options for shell commands
+# These options are used to have safer shell commands. Option '-e' is used to
+# exit on error and option '-u' is used to give error for unset variables.
+# Option '-f' disables pathname expansion which can be useful when $f, $fs, and
+# $fx variables contain names with '*' or '?' characters. However, this option
+# is used selectively within individual commands as it can be limiting at
+# times.
+set shellopts '-eu'
+
+# set internal field separator (IFS) to "\n" for shell commands
+# This is useful to automatically split file names in $fs and $fx properly
+# since default file separator used in these variables (i.e. 'filesep' option)
+# is newline. You need to consider the values of these options and create your
+# commands accordingly.
+set ifs "\n"
+
+# leave some space at the top and the bottom of the screen
+set scrolloff 10
+
+# Use the `dim` attribute instead of underline for the cursor in the preview pane
+set cursorpreviewfmt "\033[7;2m"
+
+#set icons # show icons
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# ======================
+# ====== 变量设置 ======
+# ======================
+# 用法：加入选项为A且为bool类型，可以使用'set noA'来禁用
+#
+# set anchorfind true # find 命令从文件名的开头开始匹配
+# set autoquit false # 没有客户端连接时自动退出服务器
+# set borderfmt "\033[0m" # 设置drawbox选项启用的制表符字符串的格式
+#
+# === 预览文件 ===
+#set preview true # 在右边的窗口显示文件的预览。内容包含空字符（U+0000）的文件被视为二进制文件
+set previewer ctpv # 默认''。预览文件的路径。向文件传递五个参数：当前文件名、宽度、高度、预览窗格的水平位置、垂直位置。SIGPIPE信号是在读取足够的行时发送的。如果预览程序返回非零退出代码，则指定文件的预览缓存将被禁用。当此选项的值为空时，预览筛选将被禁用，文件将按原样显示。
+set cleaner ctpvclear # 默认''。cleaner可执行文件的路径。如果启用了预览，设置了预览器，并且之前选择的文件禁用了预览缓存，则会调用此文件。向文件传递五个参数：当前文件名、宽度、高度、预览窗格的水平位置和垂直位置。当此选项的值为空时，预览清除将被禁用。
+&ctpv -s $id
+&ctpvquit $id
+
+
+
+#
+#set cursoractivefmt "\033[7m" # 当前光标的文件名显示格式。若值包含%s，则使用fmt.Sprintf。比如 \033[4m%s\033[0m 具有与 \033[4m 相同的效果
+#set cursorparentfmt "\033[7m"
+#set cursorpreviewfmt "\033[7m"
+#
+#set dircache true # 缓存目录的内容
+#set dircounts false # 开启目录大小显示目录内的数量，不是目录总大小。当'info'有'size'字段并且界面足够宽该选项才有效
+#
+#set dirfirst true # 先显示目录
+#set dironly false # 仅显示目录
+#set dirpreviews false # 目录传递给预览器脚本，可以自定义目录的预览
+#set drawbox false # 界面周围显示框
+#set errorfmt "\033[7;31;47m" # 底部错误信息的显示格式。若值包含%s，则使用fmt.Sprintf。比如 \033[4m%s\033[0m 具有与 \033[4m 相同的效果
+#set filesep "\n" # 环境变量'fs'和'fx'使用的文件分割符
+#set findlen 1 # find命令提示输入的字符数。当值是0，find命令提示直到只剩下下一个匹配项为止
+#set globsearch false # 搜索命令使用globs：* 匹配任何序列、? 匹配任何字符、[...]或[^...]匹配字符集或范围
+#set hidden false # 显示隐藏文件
+set hiddenfiles ".*:lost+found:*.bak" # 默认.*。隐藏文件的类型的glob模式列表。多个文件使用':'分割。若模式!开头则将其匹配项从隐藏文件中排除。
+#set history true # 保存命令历史
+#set icons false # 文件或目录前显示图标
+#set ifs '' # 在shell命令中设置"IFS"变量。将赋值添加到命令字符串的开头作为"IFS='...';..."，……
+#set ignorecase true # 查找和排序忽略大小写
+#set smartcase true # 当ignorecase开启，若模式包含大写字母，不忽略大小写
+#set ignoredia true # 查找和排序忽略变音符
+#set smartdia true # 当ignoredia开启，若模式包含带变音符号的字符，不忽略变音字符
+#set incsearch false # 查找过程中，每次击键后跳转到第一个匹配项
+#set incfilter false # 过滤过程中，每次击键后应用过滤模式
+#
+#set info '' # 文件或目录右边显示的信息。支持'size'、'time'、'atime'、'ctime'。当窗格宽度是信息宽度的2倍以上才显示
+#set infotimefmtnew 'Jan _2 15:04' # 'info'中今年时间的显示格式
+#set infotimefmtold 'Jan _2  2006' # 'info'中非今年时间的显示格式
+#
+#set mouse false # 鼠标事件作为输出发送
+#
+#set number false # 文件或目录左边显示行号
+#set relativenumber false # 行号显示对于当前行的位置
+#set numberfmt "\033[33m" # 行号的显示格式
+#set period 0 # 默认0。定期检查目录更新的间隔。秒为单位。通过调用load命令实现。0表示禁用
+#set preserve 'mode' # 复制文件保留的属性列表。支持的属性：'mode'（访问模式）、'timestamps'（修改时间和访问时间）
+#
+#set promptfmt "\033[32;1m%u@%h\033[0m:\033[34;1m%d\033[0m\033[1m%f\033[0m" # 顶部字符串格式。“%u”作为用户名，“%h”作为主机名，“%w”作为工作目录，“%d”作为带有尾随路径分隔符的工作目录，”%f“作为文件名，”%f“作为当前筛选器。”%S’可以使用一次，并将提供一个垫片，以便以下部件在屏幕上正确对齐。主文件夹在工作目录展开中显示为“~”。当提示不适合屏幕时，目录名称会自动缩短为从最左边的父项开始的单个字符。
+#
+set ratios 1:3:6 # 默认'1:2:3'。设置3个窗口的比例
+#set reverse false # 反向排序当前目录的内容
+#set ruler 'acc:progress:selection:filter:ind' # 状态线标尺中显示的信息列表。支持的信息类型为“acc”、“progress”、“selection”、“filter”、“ind”、”df“以及以“lf_”开头的名称。`acc’显示按下的键。`progress’显示文件操作的进度。`selection（选择）`显示选择或指定剪切/复制的文件数`。如果当前正在应用筛选器，则筛选器“显示”F“。`ind’显示光标的当前位置以及当前目录中的文件数。`df`显示剩余的可用磁盘空间量。以“lf_”开头的名称显示lf导出的环境变量的值。这对于显示当前设置很有用（例如“lf_selmode”显示“selmode”选项的当前设置）。还支持以“lf_User_”开头的用户定义选项，因此可以显示来自外部源的信息集。
+#set rulerfmt '"  %a|  %p|  \033[7;31m %m \033[0m|  \033[7;33m %c \033[0m|  \033[7;35m %s \033[0m|  \033[7;34m %f \033[0m|  %i/%t"' # 右下角显示的标尺字符串的格式。“%a”作为按下的键，“%p”作为文件操作的进度，“%m”作为要剪切（移动）的文件数，“%c”作为要复制的文件数、“%s”作为所选文件的数、“%f”作为筛选器、“%i”作为光标的位置、“%t”作为当前目录中显示的文件数，“%h”是当前目录中隐藏的文件数，“%d”是剩余的可用磁盘空间量。为lf导出的环境变量提供了额外的扩展，形式为“%｛lf_＜name＞｝”（例如“%{lf_selmode｝”）。这对于显示当前设置非常有用。还为用户定义的选项提供了扩展，形式为“%｛lf_user_＜name＞｝”（例如，“%{lf_user_foo｝”）。“|”字符将格式字符串拆分为多个部分。任何包含失败扩展（结果为空字符串）的节都将被丢弃，并且不会显示。
+#set selmode 'all' # 命令行的选择模式。'all'表示所有目录选定的文件。'dir'表示当前目录选定的文件
+#set scrolloff 0 # 滚动屏幕时，光标和屏幕顶部和底部的最小距离。
+#
+#set shell 'sh' # windows的默认值为'cmd'。以'shell shellopts shellflag command -- arguments'的形式执行shell命令。
+#set shellflag '-c' # windows的默认值为'/c'。传递shell命令的命令行标志。
+#set shellopts '' # 传递shell命令的shell选项列表
+#
+#set sixel false # 在预览中渲染六个图像
+#
+#set sortby 'natural' # 目录的排序类型：natural、name、size、time、ctime、atime、ext
+set statfmt "\033[36m%p\033[0m %c %u:%g %s %t %L" # 默认"\033[36m%p\033[0m %c %u %g %s %t %L"。Windows的默认值为“\033[36m%p\033[0m%s%t%L”。左下角显示的文件信息的格式。“%p”作为文件权限，“%c”作为链接计数，“%u”作为用户，“%g”作为组，“%s”作为文件大小，“%t”作为上次修改时间，“%l”作为链路目标（如果存在）（否则为空字符串）“%L”与“%l”相同，但前面有一个箭头“->”。 TODO 软连接的颜色
+#set tabstop 8 # tab制表(U+0009)的空格数
+#
+#set tagfmt "\033[31m" # 标志的格式。若包含%s，将使用fmt.Sprintf。“\033[4m%s\033[0m”与“\033*4m”具有相同的效果。TODO 粗体
+#
+#set tempmarks '' # 标记被视为临时标记。标记不会同步到其他客户端，也不会保存在书签文件中。特殊书签“'”始终被视为临时书签，不需要指定。
+#
+set timefmt "2006-01-02 15:04:05" # 默认'Mon Jan _2 15:04:05 2006'。底部显示文件修改时间的格式
+#set truncatechar '~' # 当文件名不适应窗口时显示的字符串
+#set waitmsg 'Press any key to continue' # shell-wait后显示的字符串
+#set wrapscan true # search可以循环目录
+#set wrapscroll false # 滚动可以循环目录
+#
+# user_{option} 用户自定义的选项，可以设置为任何字符串。在用户自定义的命令中，该值由`lf_user_{option}`环境变量提供。lf不使用这些选项，也不会持久化。

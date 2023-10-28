@@ -1,0 +1,87 @@
+# ======================
+# ====== 命令用法 ======
+# ======================
+# 若功能没有加命令缀，lf运行就会执行该功能
+# 若命令后面没有前缀，默认为':'
+# 命令后面有多个操作可以使用：
+# 命令 xxx :xxx; xxx
+# 命令后面需要多行可以使用:
+# 命令 xxx :{{
+#   xxx
+#   xxx
+# }}
+# set 设置变量值
+# setlocal 为目录设置变量值
+# map 功能绑定到按键，字母大小写敏感，特殊键写在“<”和“>”字符之间，并且始终使用小写字母，组合键格式：<f-1>、<c-a>、<a-enter>、<m-1>、<m-2>、<m-3>、<m-up>，寻找按照的方式是在正常使用情况下看左下角的报错。若需要等待用户输入，请在命令和功能之间添加push
+# cmap 功能绑定到命令模式下的按键，……
+# cmd 定义自定义命令
+#
+# === set ===
+# set hidden         # 开启
+# set hidden true    # 开启
+# set nohidden       # 关闭
+# set hidden false   # 关闭
+# set hidden!        # 切换
+# set scrolloff 10   # 数字
+# set sortby time    # 不带引号
+# set sortby 'time'  # 单引号
+# set sortby "time"  # 双引号，用反斜杠转义
+#
+# === setlocal ===
+# setlocal /foo/bar  hidden        # 对 '/foo/bar' 生效
+# setlocal /foo/bar/ hidden        # 对 '/foo/bar' 、其子目录 生效
+#
+# === map ===
+# map gh cd ~        # 内部命令
+# map D trash        # 自定义命令
+# map i $less $f     # shell命令
+# map gh             # 删除映射
+#
+# === cmap ===
+# cmap <a-i> set incsearch!
+# cmap <c-g> # 删除映射
+#
+# === cmd ===
+# cmd usage $du -h -d1 | less # 定义命令
+# cmd trash                   # 删除命令
+
+
+
+# ======================
+# ====== 通信用法 ======
+# ======================
+# socket 需要有客户端
+# lf 建议的方式
+#
+# === sockect ===
+# echo 'send echo hello world' | nc -U ${XDG_RUNTIME_DIR:-/tmp}/lf.${USER}.sock
+#
+# === lf ===
+# lf -remote "send $id echo hello world"
+# lf -remote "send $id set ratios 1:2" # 临时修改设置
+# lf -remote "query $id maps" # 查看生效的设置
+# maps     map的列表
+# cmaps    cmap的列表
+# cmds     cmd的列表
+# jumps    跳转的列表
+# history  命令行的历史记录
+# 例子：
+# map <a-h> ${{
+# 	clear
+# 	cmd=$(
+# 		lf -remote "query $id history" |
+# 		awk -F'\t' 'NR > 1 { print $NF}' |
+# 		sort -u |
+# 		fzf --reverse --prompt='Execute command: '
+# 	)
+# 	lf -remote "send $id $cmd"
+# }}
+
+
+
+# ======================
+# ==== 导入其他模块 ====
+# ======================
+source "~/.config/lf/lfvar"
+source "~/.config/lf/lfmap"
+source "~/.config/lf/lfcmd"

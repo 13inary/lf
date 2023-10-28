@@ -1,0 +1,314 @@
+# ======================
+# ====== 内置命令 ======
+# ======================
+#
+# open 打开文件
+# paste 粘贴文件
+# rename 修改名字
+# delete 删除文件
+# pre-cd 更改目录前执行的命令
+# on-cd 更改目录后执行的命令
+# on-select 选择后执行的命令
+# on-quit 在退出前执行的命令
+#
+# cmd paste %{{
+#     load=$(cat ~/.local/share/lf/files)
+#     mode=$(echo "$load" | sed -n '1p')
+#     list=$(echo "$load" | sed '1d')
+#     if [ $mode = 'copy' ]; then
+#         cp -R $list .
+#     elif [ $mode = 'move' ]; then
+#         mv $list .
+#         rm ~/.local/share/lf/files
+#         lf -remote 'send clear'
+#     fi
+# }}
+
+
+# define a custom 'open' command
+# This command is called when current file is not a directory. You may want to
+# use either file extensions and/or mime types here. Below uses an editor for
+# text files and a file opener for the rest.
+cmd open &{{
+    case $(file --mime-type -Lb $f) in
+        text/*) lf -remote "send $id \$$EDITOR \$fx";;
+        application/pdf) lf -remote "send $id \$zathura \$fx";;
+        *) for f in $fx; do $OPENER $f > /dev/null 2> /dev/null & done;;
+    esac
+}}
+
+# mkdir command. See wiki if you want it to select created dir
+#map a :push %mkdir<space>
+
+# make sure trash folder exists
+# %mkdir -p ~/.trash
+
+# move current file or selected files to trash folder
+# (also see 'man mv' for backup/overwrite options)
+cmd trash %set -f; mv $fx ~/.trash
+
+# define a custom 'delete' command
+# cmd delete ${{
+#     set -f
+#     printf "$fx\n"
+#     printf "delete?[y/n]"
+#     read ans
+#     [ "$ans" = "y" ] && rm -rf $fx
+# }}
+
+# use '<delete>' key for either 'trash' or 'delete' command
+# map <delete> trash
+# map <delete> delete
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# extract the current file with the right command
+# (xkcd link: https://xkcd.com/1168/)
+cmd extract ${{
+    set -f
+    case $f in
+        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
+        *.tar.gz|*.tgz) tar xzvf $f;;
+        *.tar.xz|*.txz) tar xJvf $f;;
+        *.zip) unzip $f;;
+        *.rar) unrar x $f;;
+        *.7z) 7z x $f;;
+    esac
+}}
+
+# compress current file or selected files with tar and gunzip
+cmd tar ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    tar czf $1.tar.gz $1
+    rm -rf $1
+}}
+
+# compress current file or selected files with zip
+cmd zip ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    zip -r $1.zip $1
+    rm -rf $1
+}}
+
+cmd mkdir $mkdir -p "$( echo $* | tr ' ' '\ ')"
+
+map gb :on-cd
+cmd on-cd &{{
+    # display git repository status in your prompt
+    source /usr/share/git/completion/git-prompt.sh
+    GIT_PS1_SHOWDIRTYSTATE=auto
+    GIT_PS1_SHOWSTASHSTATE=auto
+    GIT_PS1_SHOWUNTRACKEDFILES=auto
+    GIT_PS1_SHOWUPSTREAM=auto
+    GIT_PS1_COMPRESSSPARSESTATE=auto
+    git=$(__git_ps1 " [GIT BRANCH:> %s]") || true
+    fmt="\033[32;1m%u@%h\033[0m:\033[34;1m%w\033[0m\033[33;1m$git\033[0m"
+    lf -remote "send $id set promptfmt \"$fmt\""
+}}
+
+cmd fzf_jump ${{
+    res="$(find . -maxdepth 1 | fzf --reverse --header='Jump to location')"
+    if [ -n "$res" ]; then
+        if [ -d "$res" ]; then
+            cmd="cd"
+        else
+            cmd="select"
+        fi
+        res="$(printf '%s' "$res" | sed 's/\\/\\\\/g;s/"/\\"/g')"
+        lf -remote "send $id $cmd \"$res\""
+    fi
+}}
+#map <c-f> :fzf_jump
+
+
+# 2 pannel : 1:2
+#map yc %lf -remote "send $id set ratios 1:4:8"
+
+# Run on open lf
+#&{{
+#	lf -remote 'send %if [ $lf_width -le 120 ]; then lf -remote "send $id no_preview"; else lf -remote "send $id yes_preview"; fi'
+#}}
+#
+#cmd no_preview :{{
+#    set nopreview
+#    set ratios 1
+#    set info size:time
+#    map mm yes_preview
+#    $ctpvclear
+#}}
+#
+#cmd yes_preview :{{
+#    set ratios 1:1
+#    set preview
+#    set info size:time
+#    map mm no_preview
+#}}
+
+
+map f $lf -remote "send $id select \"$(fzf)\""
+map F :fzf_search
+#Combining fzf with ripgrep, you can interactively search in the contents of files under the current directory and select a file from the results:
+cmd fzf_search ${{
+    res="$( \
+        RG_PREFIX="rg --column --line-number --no-heading --color=always \
+            --smart-case "
+        FZF_DEFAULT_COMMAND="$RG_PREFIX ''" \
+            fzf --bind "change:reload:$RG_PREFIX {q} || true" \
+            --ansi --layout=reverse --header 'Search in files' \
+            | cut -d':' -f1
+    )"
+    [ ! -z "$res" ] && lf -remote "send $id select \"$res\""
+}}
+
+
+
+
+# charge U disk
+cmd diskmount ${{
+# Get the target volume
+target_vol=$(lsblk | fzf --reverse | sed 's/^[^[:alnum:]]*//' | cut -d' ' -f1) # 反向查找、排除异常行、输出第一列
+# Is it encrypted or something?
+if [[ $(lsblk -o NAME,FSTYPE | sed 's/^[^[:alnum:]]*//' | grep "$target_vol" | awk '{print $2}') == "crypto_LUKS" ]]; then
+	echo "Volume is encrypted"
+	udisksctl unlock -b /dev/"$target_vol"
+	list_mount
+	exit 0
+fi
+# Is it internal?
+if [[ $(lsblk -o NAME,RM | sed 's/^[^[:alnum:]]*//' | grep "$target_vol " | awk '{print $2}') -eq 1 ]]; then
+	removable=true
+else
+	removable=false
+fi
+# Adjust to proper device path
+if [[ -e /dev/"$target_vol" ]]; then
+	target_vol="/dev/$target_vol"
+elif [[ -e /dev/mapper/"$target_vol" ]]; then
+	target_vol="/dev/mapper/$target_vol"
+else
+	echo "Something vent wrong, no such volume?"
+fi
+if $removable; then
+	udisksctl mount -b "$target_vol"
+	echo "Press Return to continue"
+	read 
+else
+	echo "Input mountpoint:"
+
+	read mountpoint
+	
+	while ! [[ -d "$mountpoint" ]]; do
+		sudo mkdir -p "$mountpoint" ||\
+		echo "$mountpoint is not a possible mountpoint.
+Input new mountpoint:" && read mountpoint
+	done
+	sudo mount "$target_vol" "$mountpoint" && \
+	echo "Mounted $target_vol to $mountpoint
+Press Return to continue"
+read
+fi
+}}
+
+
+
+map ss :ssh_pro
+cmd ssh_pro ${{
+    sshconfig="${HOME}/.ssh/ssh.lf"
+    fzfselect="${HOME}/.ssh/select.fzf"
+
+    if [ ! -f ${sshconfig} ]; then
+      touch ${sshconfig}
+    fi
+    cfg=`cat ${sshconfig}`
+    show=`echo "${cfg}" | awk '{$3="";print $0}'`
+
+    fzfcode=0
+    echo "${show}" | fzf --reverse > ${fzfselect} || fzfcode=$?
+    if [ ${fzfcode} -eq 130 ]; then
+      exit 0
+    fi
+    select=`cat ${fzfselect}`
+    newline=""
+    if [ -z "${select}" ]; then
+      echo "create: \n<user> <ip> <password> <description>"
+      read new
+      ip=`echo ${new} | cut -d' ' -f2`
+      user=`echo ${new} | cut -d' ' -f1`
+      pass=`echo ${new} | cut -d' ' -f3`
+      des=`echo ${new} | cut -d' ' -f4`
+      newline=`echo -n "${ip} ${user} ${pass} ${des}"`
+    else
+      line=`echo "${select}" | sed 's/^[^[:alnum:]]*//'`
+
+      ip=`echo ${line} | cut -d' ' -f1`
+      user=`echo ${line} | cut -d' ' -f2`
+      pass=`echo "${cfg}" | grep ${ip} | grep ${user} | cut -d' ' -f3`
+    fi
+
+    # need sshpass
+    echo "ssh ${user}@${ip}"
+    sshpasscode=0
+    sshpass -p ${pass} ssh -o StrictHostKeyChecking=no ${user}@${ip} || sshpasscode=$?
+    if [ ${sshpasscode} -ne 0  ]; then
+      exit ${sshpasscode}
+    fi
+
+    if [ -n "$newline" ]; then
+      echo ${newline} >> ${sshconfig}
+      #echo >> ${sshconfig}
+    fi
+}}
+
+
+
+map sc :scp_pro
+cmd scp_pro ${{
+    sshconfig="${HOME}/.ssh/ssh.lf"
+    fzfselect="${HOME}/.ssh/select.fzf"
+
+    if [ ! -f ${sshconfig} ]; then
+      touch ${sshconfig}
+    fi
+    cfg=`cat ${sshconfig}`
+    show=`echo "${cfg}" | awk '{$3="";print $0}'`
+
+    fzfcode=0
+    echo "${show}" | fzf --reverse > ${fzfselect} || fzfcode=$?
+    if [ ${fzfcode} -eq 130 ]; then
+      exit 0
+    fi
+    select=`cat ${fzfselect}`
+    newline=""
+    if [ -z "${select}" ]; then
+        exit 2
+    else
+      line=`echo "${select}" | sed 's/^[^[:alnum:]]*//'`
+
+      ip=`echo ${line} | cut -d' ' -f1`
+      user=`echo ${line} | cut -d' ' -f2`
+      pass=`echo "${cfg}" | grep ${ip} | grep ${user} | cut -d' ' -f3`
+      echo -n "destionation dir(default: /root/): "
+      read dst
+    fi
+    if [ -z "${dst}" ]; then
+        dst="/root/"
+    fi
+
+    # need sshpass
+    echo "scp ${f} ${user}@${ip}:${dst}"
+    sshpasscode=0
+    sshpass -p ${pass} scp -o StrictHostKeyChecking=no ${f} ${user}@${ip}:${dst} || sshpasscode=$?
+    if [ ${sshpasscode} -ne 0  ]; then
+      exit ${sshpasscode}
+    fi
+}}
