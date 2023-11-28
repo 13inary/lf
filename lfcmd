@@ -222,93 +222,10 @@ fi
 
 
 map ss :ssh_pro
-cmd ssh_pro ${{
-    sshconfig="${HOME}/.ssh/ssh.lf"
-    fzfselect="${HOME}/.ssh/select.fzf"
-
-    if [ ! -f ${sshconfig} ]; then
-      touch ${sshconfig}
-    fi
-    cfg=`cat ${sshconfig}`
-    show=`echo "${cfg}" | awk '{$3="";print $0}'`
-
-    fzfcode=0
-    echo "${show}" | fzf --reverse > ${fzfselect} || fzfcode=$?
-    if [ ${fzfcode} -eq 130 ]; then
-      exit 0
-    fi
-    select=`cat ${fzfselect}`
-    newline=""
-    if [ -z "${select}" ]; then
-      echo "create: \n<user> <ip> <password> <description>"
-      read new
-      ip=`echo ${new} | cut -d' ' -f2`
-      user=`echo ${new} | cut -d' ' -f1`
-      pass=`echo ${new} | cut -d' ' -f3`
-      des=`echo ${new} | cut -d' ' -f4`
-      newline=`echo -n "${ip} ${user} ${pass} ${des}"`
-    else
-      line=`echo "${select}" | sed 's/^[^[:alnum:]]*//'`
-
-      ip=`echo ${line} | cut -d' ' -f1`
-      user=`echo ${line} | cut -d' ' -f2`
-      pass=`echo "${cfg}" | grep ${ip} | grep ${user} | cut -d' ' -f3`
-    fi
-
-    # need sshpass
-    echo "ssh ${user}@${ip}"
-    sshpasscode=0
-    sshpass -p ${pass} ssh -o StrictHostKeyChecking=no ${user}@${ip} || sshpasscode=$?
-    if [ ${sshpasscode} -ne 0  ]; then
-      exit ${sshpasscode}
-    fi
-
-    if [ -n "$newline" ]; then
-      echo ${newline} >> ${sshconfig}
-      #echo >> ${sshconfig}
-    fi
-}}
-
-
+cmd ssh_pro $~/.config/lf/bin/sshp.sh "ssh"
 
 map sc :scp_pro
-cmd scp_pro ${{
-    sshconfig="${HOME}/.ssh/ssh.lf"
-    fzfselect="${HOME}/.ssh/select.fzf"
+cmd scp_pro $~/.config/lf/bin/sshp.sh "scp"
 
-    if [ ! -f ${sshconfig} ]; then
-      touch ${sshconfig}
-    fi
-    cfg=`cat ${sshconfig}`
-    show=`echo "${cfg}" | awk '{$3="";print $0}'`
-
-    fzfcode=0
-    echo "${show}" | fzf --reverse > ${fzfselect} || fzfcode=$?
-    if [ ${fzfcode} -eq 130 ]; then
-      exit 0
-    fi
-    select=`cat ${fzfselect}`
-    newline=""
-    if [ -z "${select}" ]; then
-        exit 2
-    else
-      line=`echo "${select}" | sed 's/^[^[:alnum:]]*//'`
-
-      ip=`echo ${line} | cut -d' ' -f1`
-      user=`echo ${line} | cut -d' ' -f2`
-      pass=`echo "${cfg}" | grep ${ip} | grep ${user} | cut -d' ' -f3`
-      echo -n "destionation dir(default: /root/): "
-      read dst
-    fi
-    if [ -z "${dst}" ]; then
-        dst="/root/"
-    fi
-
-    # need sshpass
-    echo "scp ${f} ${user}@${ip}:${dst}"
-    sshpasscode=0
-    sshpass -p ${pass} scp -o StrictHostKeyChecking=no ${f} ${user}@${ip}:${dst} || sshpasscode=$?
-    if [ ${sshpasscode} -ne 0  ]; then
-      exit ${sshpasscode}
-    fi
-}}
+map sC :pcs_pro
+cmd pcs_pro $~/.config/lf/bin/sshp.sh "pcs"
