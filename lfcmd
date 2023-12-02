@@ -70,17 +70,8 @@ cmd trash %set -f; mv $fx ~/.trash
 #
 # extract the current file with the right command
 # (xkcd link: https://xkcd.com/1168/)
-cmd extract ${{
-    set -f
-    case $f in
-        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
-        *.tar.gz|*.tgz) tar xzvf $f;;
-        *.tar.xz|*.txz) tar xJvf $f;;
-        *.zip) unzip $f;;
-        *.rar) unrar x $f;;
-        *.7z) 7z x $f;;
-    esac
-}}
+map x :extract_file
+cmd extract_file $~/.config/lf/bin/extract_file.sh
 
 # compress current file or selected files with tar and gunzip
 cmd tar ${{
