@@ -155,7 +155,9 @@ cmd fzf_jump ${{
 #}}
 
 
-map f $lf -remote "send $id select \"$(fzf)\""
+map f :fzf_search_file
+cmd fzf_search_file $~/.config/lf/bin/fzf_file.sh
+
 map F :fzf_search
 #Combining fzf with ripgrep, you can interactively search in the contents of files under the current directory and select a file from the results:
 cmd fzf_search ${{
