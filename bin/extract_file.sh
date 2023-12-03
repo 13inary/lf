@@ -8,42 +8,42 @@ fileName=$(basename -- "$f")
 #tmpDir="${fileName}_$(date "+%F_%T")"
 tmpDir="extract_${fileName}"
 
-fileType=$(file ${f} | awk -F':' '{print $2}' | awk -F',' '{print $1}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+fileType=$(file "${f}" | awk -F':' '{print $2}' | awk -F',' '{print $1}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 case ${fileType} in
 "bzip2 compressed data")
-	mkdir -p ./${tmpDir}
-	tar xjvf $f -C ./${tmpDir}
+	mkdir -p "./${tmpDir}"
+	tar xjvf "$f" -C "./${tmpDir}"
 	;;
 "gzip compressed data")
-	mkdir -p ./${tmpDir}
-	tar xzvf $f -C ./${tmpDir}
+	mkdir -p "./${tmpDir}"
+	tar xzvf "$f" -C "./${tmpDir}"
 	;;
 "XZ compressed data")
-	mkdir -p ./${tmpDir}
-	tar xJvf $f -C ./${tmpDir}
+	mkdir -p "./${tmpDir}"
+	tar xJvf "$f" -C "./${tmpDir}"
 	;;
 "POSIX tar archive (GNU)")
-	mkdir -p ./${tmpDir}
-	tar xvf $f -C ./${tmpDir}
+	mkdir -p "./${tmpDir}"
+	tar xvf "$f" -C "./${tmpDir}"
 	;;
 "Zip archive data")
-	unzip $f -d ./${tmpDir}
+	unzip "$f" -d "./${tmpDir}"
 	;;
 "RAR archive data")
-	mkdir -p ./${tmpDir}
-	unrar x $f ./${tmpDir} # 闭源
-	#unrar-free -x $f # 开源但支持不够
-	#7z x $f          # 开源但支持不够
+	mkdir -p "./${tmpDir}"
+	unrar x "$f" "./${tmpDir}" # 闭源
+	#unrar-free -x "$f" # 开源但支持不够
+	#7z x "$f"          # 开源但支持不够
 	;;
 "7-zip archive data")
-	7z x $f -o./${tmpDir}
+	7z x "$f" -o"./${tmpDir}"
 	;;
 "ISO 9660 CD-ROM filesystem data"*)
-	7z x $f -o./${tmpDir}
+	7z x "$f" -o"./${tmpDir}"
 	;;
 "Microsoft OOXML" | "Microsoft Word 2007+")
-	unzip $f -d ./${tmpDir} # 系统预装
-	#7z x $f -o./${tmpDir}
+	unzip "$f" -d "./${tmpDir}" # 系统预装
+	#7z x "$f" -o"./${tmpDir}"
 	;;
 *)
 	echo "unsupport file type: "${fileType}
