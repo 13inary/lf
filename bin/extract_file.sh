@@ -8,7 +8,6 @@ fileName=$(basename -- "$f")
 #tmpDir="${fileName}_$(date "+%F_%T")"
 tmpDir="extract_${fileName}"
 
-# TODO docx
 fileType=$(file ${f} | awk -F':' '{print $2}' | awk -F',' '{print $1}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 case ${fileType} in
 "bzip2 compressed data")
@@ -41,6 +40,10 @@ case ${fileType} in
 	;;
 "ISO 9660 CD-ROM filesystem data"*)
 	7z x $f -o./${tmpDir}
+	;;
+"Microsoft OOXML" | "Microsoft Word 2007+")
+	unzip $f -d ./${tmpDir} # 系统预装
+	#7z x $f -o./${tmpDir}
 	;;
 *)
 	echo "unsupport file type: "${fileType}
