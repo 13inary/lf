@@ -8,7 +8,7 @@ fileName=$(basename -- "$f")
 #tmpDir="${fileName}_$(date "+%F_%T")"
 tmpDir="extract_${fileName}"
 
-# TODO tar docx
+# TODO docx
 fileType=$(file ${f} | awk -F':' '{print $2}' | awk -F',' '{print $1}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 case ${fileType} in
 "bzip2 compressed data")
@@ -22,6 +22,10 @@ case ${fileType} in
 "XZ compressed data")
 	mkdir -p ./${tmpDir}
 	tar xJvf $f -C ./${tmpDir}
+	;;
+"POSIX tar archive (GNU)")
+	mkdir -p ./${tmpDir}
+	tar xvf $f -C ./${tmpDir}
 	;;
 "Zip archive data")
 	unzip $f -d ./${tmpDir}
