@@ -9,33 +9,33 @@ fileName=$(basename -- "$f")
 tmpDir="extract_${fileName}"
 
 # TODO tar docx
-fileType=$(file ${f} | awk '{print $2}')
+fileType=$(file ${f} | awk -F':' '{print $2}' | awk -F',' '{print $1}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 case ${fileType} in
-bzip2)
+"bzip2 compressed data")
 	mkdir -p ./${tmpDir}
 	tar xjvf $f -C ./${tmpDir}
 	;;
-gzip)
+"gzip compressed data")
 	mkdir -p ./${tmpDir}
 	tar xzvf $f -C ./${tmpDir}
 	;;
-XZ)
+"XZ compressed data")
 	mkdir -p ./${tmpDir}
 	tar xJvf $f -C ./${tmpDir}
 	;;
-Zip)
+"Zip archive data")
 	unzip $f -d ./${tmpDir}
 	;;
-RAR)
+"RAR archive data")
 	mkdir -p ./${tmpDir}
 	unrar x $f ./${tmpDir} # 闭源
 	#unrar-free -x $f # 开源但支持不够
 	#7z x $f          # 开源但支持不够
 	;;
-7-zip)
+"7-zip archive data")
 	7z x $f -o./${tmpDir}
 	;;
-ISO)
+"ISO 9660 CD-ROM filesystem data"*)
 	7z x $f -o./${tmpDir}
 	;;
 *)
