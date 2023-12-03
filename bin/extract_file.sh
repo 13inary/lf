@@ -38,6 +38,10 @@ RAR)
 ISO)
 	7z x $f -o./${tmpDir}
 	;;
+*)
+	echo "unsupport file type: "${fileType}
+	exit 1
+	;;
 esac
 
 exit
