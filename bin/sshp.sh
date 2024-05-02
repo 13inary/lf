@@ -104,6 +104,7 @@ writeConfig
 sshpasscode=0
 case ${action} in
 "ssh")
+	ssh-keygen -f "$HOME/.ssh/known_hosts" -R "$host"
 	echo -e "ssh ${user}@\033[34m${host}\033[0m # ${des} ..."
 	sshpass -p ${pass} ssh -o StrictHostKeyChecking=no ${user}@${host} || sshpasscode=$?
 	;;
@@ -111,6 +112,14 @@ case ${action} in
 	read -p "push to (default: /tmp/): " dir
 	if [ -z "${dir}" ]; then
 		dir="/tmp/"
+	fi
+	if [ -z "${f}" ]; then
+		exit 2
+	fi
+	ssh-keygen -f "$HOME/.ssh/known_hosts" -R "$host"
+	sshpass -p ${pass} ssh -o StrictHostKeyChecking=no ${user}@${host} "rm -rf ${dir}/$(basename ${f})"
+	if [ "$?" != 0 ]; then
+		exit 3
 	fi
 	echo -e "scp -r ${f} ${user}@\033[34m${host}\033[0m:${dir} # ${des} ..."
 	sshpass -p ${pass} scp -r -o StrictHostKeyChecking=no ${f} ${user}@${host}:${dir} || sshpasscode=$?
@@ -125,6 +134,7 @@ case ${action} in
 	while true; do
 		lscode=0
 		if [[ ${dir} != "" ]]; then
+			ssh-keygen -f "$HOME/.ssh/known_hosts" -R "$host"
 			sshpass -p ${pass} ssh -o StrictHostKeyChecking=no ${user}@${host} "ls -al ${dir}" || lscode=$?
 			echo ${dir}
 		fi
