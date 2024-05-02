@@ -66,6 +66,14 @@ cmd trash %set -f; mv $fx ~/.trash
 #
 #
 #
+map dD :trash_add
+cmd trash_add %~/.config/lf/bin/trash_add.sh "$@"
+
+map dr :trash_recover
+cmd trash_recover $~/.config/lf/bin/trash_recover.sh
+
+#map gm :git_create_merge
+#cmd git_create_merge $~/.config/lf/bin/git_create_merge.sh "$@"
 #
 #
 #
