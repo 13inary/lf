@@ -208,3 +208,6 @@ cmd scp_pro $~/.config/lf/bin/sshp.sh "scp"
 
 map sC :pcs_pro
 cmd pcs_pro $~/.config/lf/bin/sshp.sh "pcs"
+
+map mk :make_project
+cmd make_project $~/.config/lf/bin/build.sh
