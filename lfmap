@@ -161,7 +161,7 @@ map yy copy
 map yp %echo -n "$f" | xsel -b
 map d # 默认cut：剪切选择的文件或当前文件
 map dd cut
-map dD %mv -ib "$fx" ~/.local/share/Trash/files/ && echo "trashed $fx        from_dir $(pwd)" >> ~/.config/ranger/trash_history
+map dD %mkdir -p ~/.local/share/Trash/files/ && mv -ib "$fx" ~/.local/share/Trash/files/ && echo "trashed $fx        from_dir $(pwd)" >> ~/.config/ranger/trash_history
 #map dD %rm -r "$fx"
 map p # 默认paste：将复制或剪切的文件粘贴到当前目录
 map pp paste
