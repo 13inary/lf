@@ -66,11 +66,11 @@ cmd trash %set -f; mv $fx ~/.trash
 #
 #
 #
-map dD :trash_add
-cmd trash_add %~/.config/lf/bin/trash_add.sh "$@"
-
-map dr :trash_recover
-cmd trash_recover $~/.config/lf/bin/trash_recover.sh
+#map dD :trash_add
+#cmd trash_add %~/.config/lf/bin/trash_add.sh "$@"
+#
+#map dr :trash_recover
+#cmd trash_recover $~/.config/lf/bin/trash_recover.sh
 
 #map gm :git_create_merge
 #cmd git_create_merge $~/.config/lf/bin/git_create_merge.sh "$@"
@@ -220,3 +220,5 @@ cmd pcs_pro $~/.config/lf/bin/sshp.sh "pcs"
 
 map mk :make_project
 cmd make_project $~/.config/lf/bin/build.sh
+#
+#map mv $~/.config/lf/bin/mv.sh
