@@ -4,9 +4,9 @@ set -f
 archiveName="$1"
 TZ=Asia/Shanghai
 if [ -z "${archiveName}" ]; then
-	archiveName="$(date '+%Y%m%d_%H%M%S')"
+	archiveName="$(date '+%Y%m%d_%H%M%S')_backup"
 else
-	archiveName="${archiveName}_$(date '+%Y%m%d_%H%M%S')"
+	archiveName="${archiveName}_$(date '+%Y%m%d_%H%M%S')_backup"
 fi
 
 files=""
